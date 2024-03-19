@@ -1,61 +1,84 @@
-import React, { useId, useState } from "react";
+import React, { useId, useRef, useState } from "react";
 import styled from "styled-components";
 
 function LoginPage() {
-  const [loginIdentity, setLoginIdentity] = useState(false);
   const id = useId();
 
-  const loginIdentityHandle = (e) => {
-    let targeting = e.target.id;
+  const identityRefEmail = useRef(null);
+  const identityRefPassword = useRef(null);
+  const notIdentityRefNumber = useRef(null);
+  const notIdentityRefPhone = useRef(null);
+  const LoginHelpSectionRef = useRef(null);
 
-    console.log("******", targeting, loginIdentity);
+  const [loginIdentity, setLoginIdentity] = useState(`고객 로그인`);
+
+  const identityHandle = (identityName) => {
+    if (identityName === `비회원 로그인`) {
+      setLoginIdentity(identityName);
+      LoginHelpSectionRef.current.style.visibility = "hidden";
+      identityRefEmail.current.style.display = "none";
+      identityRefPassword.current.style.display = "none";
+      notIdentityRefNumber.current.style.display = "block";
+      notIdentityRefPhone.current.style.display = "block";
+    } else {
+      setLoginIdentity(identityName);
+      LoginHelpSectionRef.current.style.visibility = "visible";
+      identityRefEmail.current.style.display = "block";
+      identityRefPassword.current.style.display = "block";
+      notIdentityRefNumber.current.style.display = "none";
+      notIdentityRefPhone.current.style.display = "none";
+    }
   };
 
   return (
     <div>
       <Wrapper>
         <LoginSection>
-          <LoginIdentity id={`${id}-identity`}>
-            <LoginIdentityList
-              id={`${id}-identity1`}
-              style={{
-                color: loginIdentity ? "#353535" : "#d9d9d9",
-              }}
-              onClick={loginIdentityHandle}
-            >
-              사업자 로그인
-            </LoginIdentityList>
-            <LoginIdentityList
-              id={`${id}-identity2`}
-              style={{
-                color: loginIdentity ? "#353535" : "#d9d9d9",
-              }}
-              onClick={loginIdentityHandle}
-            >
-              고객 로그인
-            </LoginIdentityList>
-            <LoginIdentityList
-              id={`${id}-identity3`}
-              style={{
-                color: loginIdentity ? "#353535" : "#d9d9d9",
-              }}
-              onClick={loginIdentityHandle}
-            >
-              비회원 로그인
-            </LoginIdentityList>
+          <LoginIdentity>
+            {[`사업자 로그인`, `고객 로그인`, `비회원 로그인`].map(
+              (identityName, index) => (
+                <LoginIdentityList
+                  key={`${id}-identity-${index}`}
+                  id={identityName}
+                  style={{
+                    color:
+                      loginIdentity === identityName ? "#353535" : "#d9d9d9",
+                  }}
+                  onClick={() => {
+                    identityHandle(identityName);
+                  }}
+                >
+                  {identityName}
+                </LoginIdentityList>
+              )
+            )}
           </LoginIdentity>
           <InputSettion>
             <InputArea
               id={`${id}-email`}
+              ref={identityRefEmail}
               placeholder="이메일을 입력해주세요."
             />
             <InputArea
               id={`${id}-password`}
+              ref={identityRefPassword}
               placeholder="비밀번호를 입력해주세요."
+            />
+            <InputArea
+              id={`${id}-number`}
+              ref={notIdentityRefNumber}
+              placeholder="전달받은 번호를 입력해주세요."
+              style={{ display: "none" }}
+            />
+            <InputArea
+              id={`${id}-phone`}
+              ref={notIdentityRefPhone}
+              placeholder="전화번호를 입력해주세요."
+              style={{ display: "none" }}
             />
           </InputSettion>
           <LoginBtn>로그인</LoginBtn>
-          <LoginHelpSection>
+          <LoginHelpSection ref={LoginHelpSectionRef}>
             <LoginMaintain>
               <LoginMaintainChack id={`${id}-checkbox`} type="checkbox" />
               <label htmlFor={`${id}-checkbox`}>로그인 상태 유지</label>
@@ -70,8 +93,6 @@ function LoginPage() {
 }
 
 export default LoginPage;
-
-// 로그인 구분 해결하기
 
 const Wrapper = styled.div`
   width: 100%;
@@ -89,6 +110,8 @@ const LoginSection = styled.section`
 const LoginIdentity = styled.ul`
   display: flex;
   justify-content: space-between;
+  margin-bottom: 1.7rem;
+
   & :last-child {
     border-right: none;
   }
@@ -103,12 +126,8 @@ const LoginIdentityList = styled.li`
   text-align: center;
 `;
 
-const InputSettion = styled.section`
+const InputSettion = styled.form`
   width: 100%;
-  margin: 1.875rem 0;
-  & :last-child {
-    margin-top: 1rem;
-  }
 `;
 
 const InputArea = styled.input`
@@ -120,6 +139,7 @@ const InputArea = styled.input`
   background-color: #d9d9d9;
   padding: 1.25rem;
   font-size: 1.25rem;
+  margin-bottom: 1rem;
   &::placeholder {
     color: #ffffff;
   }
@@ -180,7 +200,7 @@ const SignupBtn = styled.button`
   border-radius: 3.125rem;
   height: 4.375rem;
   border: none;
-  box-shadow: 0px 0px 0px 0.025rem #353535;
+  box-shadow: 0px 0px 0px 0.055rem #353535;
   background-color: #ffffff;
   padding: 1.25rem;
   font-size: 1.25rem;
@@ -191,6 +211,6 @@ const SignupBtn = styled.button`
   &:hover {
     color: #ffffff;
     background: #353535;
-    box-shadow: 0px 0px 0px 0.025rem #ffffff;
+    box-shadow: 0px 0px 0px 0.055rem #ffffff;
   }
 `;
