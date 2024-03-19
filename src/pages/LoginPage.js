@@ -1,57 +1,54 @@
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import styled from "styled-components";
+
+const LOGIN_OPTION = ["사업자 로그인", "고객 로그인", "비회원 로그인"];
 
 function LoginPage() {
   const id = useId();
+  const [loginIdentity, setLoginIdentity] = useState(`고객 로그인`);
 
   const identityRefEmail = useRef(null);
   const identityRefPassword = useRef(null);
   const notIdentityRefNumber = useRef(null);
   const notIdentityRefPhone = useRef(null);
-  const LoginHelpSectionRef = useRef(null);
+  const loginHelpSectionRef = useRef(null);
 
-  const [loginIdentity, setLoginIdentity] = useState(`고객 로그인`);
-
-  const identityHandle = (identityName) => {
-    if (identityName === `비회원 로그인`) {
-      setLoginIdentity(identityName);
-      LoginHelpSectionRef.current.style.visibility = "hidden";
-      identityRefEmail.current.style.display = "none";
-      identityRefPassword.current.style.display = "none";
-      notIdentityRefNumber.current.style.display = "block";
-      notIdentityRefPhone.current.style.display = "block";
-    } else {
-      setLoginIdentity(identityName);
-      LoginHelpSectionRef.current.style.visibility = "visible";
-      identityRefEmail.current.style.display = "block";
-      identityRefPassword.current.style.display = "block";
-      notIdentityRefNumber.current.style.display = "none";
-      notIdentityRefPhone.current.style.display = "none";
-    }
-  };
+  useEffect(() => {
+    const isMemberLogin = loginIdentity !== "비회원 로그인";
+    const displayStyle = isMemberLogin ? "block" : "none";
+    identityRefEmail.current.style.display = displayStyle;
+    identityRefPassword.current.style.display = displayStyle;
+    notIdentityRefNumber.current.style.display = isMemberLogin
+      ? "none"
+      : "block";
+    notIdentityRefPhone.current.style.display = isMemberLogin
+      ? "none"
+      : "block";
+    loginHelpSectionRef.current.style.opacity = isMemberLogin ? 1 : 0;
+    loginHelpSectionRef.current.style.visibility = isMemberLogin
+      ? "visible"
+      : "hidden";
+  }, [loginIdentity]);
 
   return (
     <div>
       <Wrapper>
         <LoginSection>
           <LoginIdentity>
-            {[`사업자 로그인`, `고객 로그인`, `비회원 로그인`].map(
-              (identityName, index) => (
-                <LoginIdentityList
-                  key={`${id}-identity-${index}`}
-                  id={identityName}
-                  style={{
-                    color:
-                      loginIdentity === identityName ? "#353535" : "#d9d9d9",
-                  }}
-                  onClick={() => {
-                    identityHandle(identityName);
-                  }}
-                >
-                  {identityName}
-                </LoginIdentityList>
-              )
-            )}
+            {LOGIN_OPTION.map((identityName, index) => (
+              <LoginIdentityList
+                key={`${id}-identity-${index}`}
+                id={identityName}
+                style={{
+                  color: loginIdentity === identityName ? "#353535" : "#d9d9d9",
+                }}
+                onClick={() => {
+                  setLoginIdentity(identityName);
+                }}
+              >
+                {identityName}
+              </LoginIdentityList>
+            ))}
           </LoginIdentity>
           <InputSettion>
             <InputArea
@@ -78,7 +75,7 @@ function LoginPage() {
             />
           </InputSettion>
           <LoginBtn>로그인</LoginBtn>
-          <LoginHelpSection ref={LoginHelpSectionRef}>
+          <LoginHelpSection ref={loginHelpSectionRef}>
             <LoginMaintain>
               <LoginMaintainChack id={`${id}-checkbox`} type="checkbox" />
               <label htmlFor={`${id}-checkbox`}>로그인 상태 유지</label>
@@ -172,6 +169,7 @@ const LoginHelpSection = styled.section`
   margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
+  opacity: 1;
 `;
 
 const LoginMaintain = styled.form`
